@@ -1,19 +1,23 @@
 import numpy as np
+import itertools
 
 
-weapon_input = """Dagger        8     4       0
+weapon_input = """none 0 0 0
+Dagger        8     4       0
 Shortsword   10     5       0
 Warhammer    25     6       0
 Longsword    40     7       0
 Greataxe     74     8       0""".splitlines()
 
-armor_input = """Leather      13     0       1
+armor_input = """none 0 0 0
+Leather      13     0       1
 Chainmail    31     0       2
 Splintmail   53     0       3
 Bandedmail   75     0       4
 Platemail   102     0       5""".splitlines()
 
-ring_input = """Damage+1    25     1       0
+ring_input = """none 0 0 0
+Damage+1    25     1       0
 Damage+2    50     2       0
 Damage+3   100     3       0
 Defense+1   20     0       1
@@ -34,15 +38,6 @@ for line in armor_input:
 for line in ring_input:
     name, cost, damage, armor = line.split()
     rings[name] = tuple(map(int, (cost, damage, armor)))
-
-weapon_values = [weapons[key][0] / weapons[key][1] for key in weapons]
-armor_values = [armors[key][0] / armors[key][2] for key in weapons]
-ring_values = [rings[key][0] / (rings[key][1] + rings[key][2]) for key in weapons]
-
-def best_purchase():
-
-
-    return purchase_type, purchase_name
 
 
 class Player:
@@ -96,20 +91,23 @@ class Player:
 
 
 class Boss:
-    def __init__(self, hp, dmg, defense):
+    def __init__(self, hp, dmg, armor):
         self.hp = hp
         self.damage = dmg
-        self.defense = defense
+        self.armor = armor
 
 
 def does_player_win(player, boss):
-    player_damage_per_turn = player.damage - boss.defense
+    player_damage_per_turn = player.damage - boss.armor
     boss_damage_per_turn = boss.damage - player.defense
+
+    if player_damage_per_turn < 1:
+        player_damage_per_turn = 1
+    if boss_damage_per_turn < 1:
+        boss_damage_per_turn = 1
 
     player_turns = int(np.ceil(boss.hp / player_damage_per_turn))
     boss_turns = int(np.ceil(player.hp / boss_damage_per_turn))
-
-    print(player_turns, boss_turns)
 
     return player_turns <= boss_turns
 
@@ -136,8 +134,29 @@ boss = Boss(hp, dmg, arm)
 initial_weapon = 'Dagger'
 p = Player(initial_weapon)
 
+min_cost = None
+max_cost = None
+
+for weapon in weapons:
+    if weapon == 'none':
+        continue
+    for armor in armors:
+        for ring1, ring2 in itertools.combinations(rings.keys(), 2):
+            p.weapon = weapon
+            p.armor = armor
+            p.ring1 = ring1
+            p.ring2 = ring2
+            if does_player_win(p, boss):
+                if min_cost is None:
+                    min_cost = p.equipment_cost()
+                else:
+                    min_cost = min([min_cost, p.equipment_cost()])
+            else:
+                if max_cost is None:
+                    max_cost = p.equipment_cost()
+                else:
+                    max_cost = max([max_cost, p.equipment_cost()])
 
 
-while not (does_player_win(p, boss):
-
-
+print(f"Part 1 Answer: {min_cost}")
+print(f"Part 2 Answer: {max_cost}")
