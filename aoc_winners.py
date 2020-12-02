@@ -36,5 +36,5 @@ if __name__ == '__main__':
         # Randomly choose a winner, with each contestant weighted by the number of stars collected.
         winner = random.choices(list(participants.keys()), list(participants.values()))[0]
         # Remove the winner from the pool of winners.
-        participants.pop(winner, None)
+        participants.pop(winner)
         print(f"Winner {i + 1}: {winner}")
