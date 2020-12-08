@@ -4,10 +4,10 @@ def bootcode(lines):
         if idx in seen:
             return False, acc
         l = lines[idx].strip().split()
-        op, arg = l[0], int(l[1])
+        instruction, value = l[0], int(l[1])
         seen.add(idx)
-        acc += arg if op == 'acc' else 0
-        idx += arg if op == 'jmp' else 1
+        acc += value if instruction == 'acc' else 0
+        idx += value if instruction == 'jmp' else 1
         if idx >= len(lines):
             return True, acc
 
@@ -17,7 +17,7 @@ print(f"Part 1 Answer: {bootcode(lines)[1]}")
 for i, l in enumerate(lines):
     if 'acc' in l:
         continue
-    lines[i] = 'jmp' + l[3:] if 'nop' in l else 'nop' + l[3:]
+    lines[i] = l.replace('nop', 'jmp') if 'nop' in l else l.replace('jmp', 'nop')
     success, val = bootcode(lines)
     if success:
         print(f"Part 2 Answer: {val}")
