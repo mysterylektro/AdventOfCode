@@ -38,6 +38,7 @@ while idx != len(check):
         if idx in visited:
             if first_run:
                 part1 = accumulator
+                first_run = False
             break
         visited.add(idx)
         op, val = check[idx].strip().split()
