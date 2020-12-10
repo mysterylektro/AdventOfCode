@@ -3,7 +3,7 @@ from functools import lru_cache
 
 @lru_cache()
 def count_paths_to_end(val):
-    return 1 if val == max(j) else 0 if val not in j else count_paths_to_end(val + 1) + count_paths_to_end(val + 2) + count_paths_to_end(val + 3)
+    return 1 if val == max(j) else 0 if val not in j else sum([count_paths_to_end(val + i)  for i in range(1,4)])
 
 
 lines = list(map(int, open('../inputs/day10.txt')))
