@@ -1,6 +1,6 @@
 class Seat:
-    def __init__(self, row, col):
-        self.location = (row, col)
+    def __init__(self, location: complex):
+        self.location = location
         self.filled = False
         self.buffer = False
         self.adjacent_seats = []
@@ -66,23 +66,24 @@ def go(part2=False):
     return new_count
 
 
-seats = [Seat(j, i) for j, line in enumerate(open('../inputs/day11.txt')) for i, char in enumerate(line) if char == 'L']
+seats = [Seat(complex(i, j)) for j, line in enumerate(open('../inputs/day11.txt')) for i, char in enumerate(line) if char == 'L']
 locations = [seat.location for seat in seats]
-max_row = max([loc[0] for loc in locations])
-max_col = max([loc[1] for loc in locations])
+max_real = max([int(location.real) for location in locations])
+max_imag = max([int(location.imag) for location in locations])
 for seat in seats:
-    for loc in [(0, 1), (1, 1), (1, 0), (0, -1), (-1, -1), (-1, 0), (1, -1), (-1, 1)]:
-        adj_loc = seat.location[0] + loc[0], seat.location[1] + loc[1]
-        if 0 <= adj_loc[0] <= max_row and 0 <= adj_loc[1] <= max_col:
-            if adj_loc in locations:
-                seat.adjacent_seats.append(seats[locations.index(adj_loc)])
-        for i in range(1, max(max_row, max_col)):
-            los_loc = seat.location[0] + loc[0]*i, seat.location[1] + loc[1]*i
-            if 0 <= los_loc[0] <= max_row and 0 <= los_loc[1] <= max_col:
-                if los_loc in locations:
-                    seat.line_of_sight_seats.append(seats[locations.index(los_loc)])
-                    break
-            else:
+    location = seat.location
+    for loc in [1j, 1+1j, 1, -1j, -1-1j, -1, 1-1j, -1+1j]:
+        adj_loc = location + loc
+        if any([adj_loc.real < 0, adj_loc.real > max_real, adj_loc.imag < 0, adj_loc.imag > max_imag]):
+            continue
+        if adj_loc in locations:
+            seat.adjacent_seats.append(seats[locations.index(adj_loc)])
+        for i in range(1, max([max_real, max_imag])):
+            los_loc = location + loc*i
+            if any([los_loc.real < 0, los_loc.real > max_real, los_loc.imag < 0, los_loc.imag > max_imag]):
+                break
+            if los_loc in locations:
+                seat.line_of_sight_seats.append(seats[locations.index(los_loc)])
                 break
 
 print(f"Part 1 Answer: {go()}")
