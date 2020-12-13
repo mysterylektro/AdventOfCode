@@ -1,39 +1,29 @@
 from collections import deque
 
 facing = deque('ESWN')
-
-steps = {'N': (0, 1),
-         'E': (1, 0),
-         'S': (0, -1),
-         'W': (-1, 0)}
-
-ccw_rotate = {90: lambda x, y: (-y, x),
-              180: lambda x, y: (-x, -y),
-              270: lambda x, y: (y, -x)}
-
-cw_rotate = {90: lambda x, y: (y, -x),
-             180: lambda x, y: (-x, -y),
-             270: lambda x, y: (-y, x)}
-
-x1, y1, x2, y2 = 0, 0, 0, 0
-waypoint = [10, 1]
+steps = {'N': 1j, 'E': 1, 'S': -1j, 'W': -1}
+p1, p2 = 0, 0
+waypoint = 10+1j
 
 for line in open('../inputs/day12.txt'):
     op, arg = line[0], int(line[1:].strip())
+    val = arg // 90
     if op == 'L':
-        facing.rotate(int(arg / 90))
-        waypoint[0], waypoint[1] = ccw_rotate.get(arg)(waypoint[0], waypoint[1])
+        facing.rotate(val)
+        for _ in range(val):
+            waypoint = complex(-waypoint.imag, waypoint.real)
     if op == 'R':
-        facing.rotate(-int(arg / 90))
-        waypoint[0], waypoint[1] = cw_rotate.get(arg)(waypoint[0], waypoint[1])
+        facing.rotate(-val)
+        for _ in range(val):
+            waypoint = complex(waypoint.imag, -waypoint.real)
     if op == 'F':
-        dir = steps.get(facing[0])
-        x1, y1 = x1 + dir[0] * arg, y1 + dir[1] * arg
-        x2, y2 = x2 + waypoint[0] * arg, y2 + waypoint[1] * arg
+        step = steps.get(facing[0])
+        p1 += step * arg
+        p2 += waypoint * arg
     if op in facing:
-        dir = steps.get(op)
-        x1, y1 = x1 + dir[0] * arg, y1 + dir[1] * arg
-        waypoint[0], waypoint[1] = waypoint[0] + dir[0] * arg, waypoint[1] + dir[1] * arg
+        step = steps.get(op)
+        p1 += step * arg
+        waypoint += step * arg
 
-print(abs(x1) + abs(y1))
-print(abs(x2) + abs(y2))
+print(f"Part 1 Answer: {int(abs(p1.real) + abs(p1.imag))}")
+print(f"Part 2 Answer: {int(abs(p2.real) + abs(p2.imag))}")
