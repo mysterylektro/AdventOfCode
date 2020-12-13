@@ -70,26 +70,19 @@ for j, line in enumerate(open('../inputs/day11.txt')):
 
 max_real = max([int(location.real) for location in seats.keys()])
 max_imag = max([int(location.imag) for location in seats.keys()])
-handled_locations = set()
 for location, seat in seats.items():
     for loc in [1j, 1+1j, 1, -1j, -1-1j, -1, 1-1j, -1+1j]:
-        adj_loc = location + loc
-        if adj_loc in handled_locations:
-            continue
-        if any([adj_loc.real < 0, adj_loc.real > max_real, adj_loc.imag < 0, adj_loc.imag > max_imag]):
-            continue
-        if adj_loc in seats.keys():
-            seats[adj_loc].adjacent_seats.add(seat)
-            seat.adjacent_seats.add(seats[adj_loc])
         for i in range(1, max([max_real, max_imag])):
             los_loc = location + loc*i
             if any([los_loc.real < 0, los_loc.real > max_real, los_loc.imag < 0, los_loc.imag > max_imag]):
                 break
             if los_loc in seats.keys():
+                if i == 1:
+                    seats[los_loc].adjacent_seats.add(seat)
+                    seat.adjacent_seats.add(seats[los_loc])
                 seat.line_of_sight_seats.add(seats[los_loc])
                 seats[los_loc].line_of_sight_seats.add(seat)
                 break
-    handled_locations.add(location)
 
 print(f"Part 1 Answer: {go()}")
 print(f"Part 2 Answer: {go(part2=True)}")
