@@ -5,32 +5,16 @@ class Seat:
         self.adjacent_seats = set()
         self.line_of_sight_seats = set()
 
-    def reset(self):
-        self.filled = False
-
-    def update_p1(self):
-        adjacent_filled = [seat.filled for seat in self.adjacent_seats]
-        if not self.filled:
-            if adjacent_filled.count(True) == 0:
-                self.buffer = True
-            else:
-                self.buffer = self.filled
-        else:
-            if adjacent_filled.count(True) >= 4:
+    def buffer_seat(self, p1=True):
+        filled_count = [s.filled for s in (self.adjacent_seats if p1 else self.line_of_sight_seats)].count(True)
+        if self.filled:
+            if filled_count >= (4 if p1 else 5):
                 self.buffer = False
             else:
                 self.buffer = self.filled
-
-    def update_p2(self):
-        los_filled = [seat.filled for seat in self.line_of_sight_seats]
-        if not self.filled:
-            if los_filled.count(True) == 0:
-                self.buffer = True
-            else:
-                self.buffer = self.filled
         else:
-            if los_filled.count(True) >= 5:
-                self.buffer = False
+            if filled_count == 0:
+                self.buffer = True
             else:
                 self.buffer = self.filled
 
@@ -39,26 +23,24 @@ class Seat:
             self.filled = self.buffer
 
 
-def go(part2=False):
-    def update(part2=False):
-        for s in seats.values():
-            if part2:
-                s.update_p2()
-            else:
-                s.update_p1()
-        for s in seats.values():
-            s.commit()
+def update(p1=True):
+    for s in seats.values():
+        s.buffer_seat(p1=p1)
+    for s in seats.values():
+        s.commit()
 
-    for seat in seats.values():
-        seat.reset()
 
-    prev_count = [seat.filled for seat in seats.values()].count(True)
-    update(part2=part2)
-    new_count = [seat.filled for seat in seats.values()].count(True)
+def go(p1=True):
+    for s in seats.values():
+        s.filled = False
+
+    prev_count = [s.filled for s in seats.values()].count(True)
+    update(p1=p1)
+    new_count = [s.filled for s in seats.values()].count(True)
     while prev_count != new_count:
         prev_count = new_count
-        update(part2=part2)
-        new_count = [seat.filled for seat in seats.values()].count(True)
+        update(p1=p1)
+        new_count = [s.filled for s in seats.values()].count(True)
     return prev_count
 
 
@@ -84,5 +66,5 @@ for location, seat in seats.items():
                 seats[los_loc].line_of_sight_seats.add(seat)
                 break
 
-print(f"Part 1 Answer: {go()}")
-print(f"Part 2 Answer: {go(part2=True)}")
+print(f"Part 1 Answer: {go(p1=True)}")
+print(f"Part 2 Answer: {go(p1=False)}")
