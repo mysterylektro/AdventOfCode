@@ -12,18 +12,20 @@ for line in open('../inputs/day12.txt'):
         facing.rotate(val)
         for _ in range(val):
             waypoint = complex(-waypoint.imag, waypoint.real)
-    if op == 'R':
+    elif op == 'R':
         facing.rotate(-val)
         for _ in range(val):
             waypoint = complex(waypoint.imag, -waypoint.real)
-    if op == 'F':
+    elif op == 'F':
         step = steps.get(facing[0])
         p1 += step * arg
         p2 += waypoint * arg
-    if op in facing:
+    elif op in facing:
         step = steps.get(op)
         p1 += step * arg
         waypoint += step * arg
+    else:
+        continue
 
 print(f"Part 1 Answer: {int(abs(p1.real) + abs(p1.imag))}")
 print(f"Part 2 Answer: {int(abs(p2.real) + abs(p2.imag))}")
