@@ -5,10 +5,10 @@ def memory_game(end_num):
     spoken = defaultdict(deque)
 
     for i, j in enumerate(list(map(int, open('../inputs/day15.txt').readline().split(',')))):
-        spoken[j].append(i+1)
+        spoken[j].append(i)
 
-    last_turn, last_spoken = i+1, j
-    for turn in range(last_turn+1, end_num+1):
+    last_turn, last_spoken = i, j
+    for turn in range(last_turn+1, end_num):
         last_spoken = 0 if len(spoken[last_spoken]) <= 1 else spoken[last_spoken][1] - spoken[last_spoken][0]
         spoken[last_spoken].append(turn)
         if len(spoken[last_spoken]) > 2:
