@@ -81,4 +81,4 @@ def go(p1=True):
 
 
 print(f"Part 1 Answer: {go(p1=True)}")
-print(f"Part 1 Answer: {go(p1=False)}")
+print(f"Part 2 Answer: {go(p1=False)}")
