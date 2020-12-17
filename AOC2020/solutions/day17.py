@@ -1,84 +1,66 @@
+import itertools
+
+
 class Cube:
     def __init__(self):
-        self.status = False
-        self.neighbours = []
+        self.active = False
+        self.neighbours = set()
         self.buffer = False
 
-    def add_neighbour(self, cube):
-        if cube not in self.neighbours:
-            self.neighbours.append(cube)
-
     def buffer_update(self):
-        if self.status:
-            self.buffer = [cube.status for cube in self.neighbours].count(True) in [2, 3]
-        else:
-            self.buffer = [cube.status for cube in self.neighbours].count(True) == 3
+        count = [cube.active for cube in self.neighbours].count(True)
+        self.buffer = count in [2, 3] if self.active else count == 3
 
     def commit(self):
-        self.status = self.buffer
+        self.active = self.buffer
 
 
-def neighbours_p1(location):
-    neighbours = []
-    for x in [location[0] - 1, location[0], location[0] + 1]:
-        for y in [location[1] - 1, location[1], location[1] + 1]:
-            for z in [location[2] - 1, location[2], location[2] + 1]:
-                if x == location[0] and y == location[1] and z == location[2]:
-                    continue
-                neighbours.append((x, y, z))
+def calc_neighbours(location):
+    dims = []
+    for dim in range(len(location)):
+        dims.append([location[dim]-1, location[dim], location[dim]+1])
+    neighbours = list(itertools.product(*dims))
+    neighbours.remove(location)
     return neighbours
 
 
-def neighbours_p2(location):
-    neighbours = []
-    for x in [location[0] - 1, location[0], location[0] + 1]:
-        for y in [location[1] - 1, location[1], location[1] + 1]:
-            for z in [location[2] - 1, location[2], location[2] + 1]:
-                for w in [location[3] - 1, location[3], location[3] + 1]:
-                    if x == location[0] and y == location[1] and z == location[2] and w == location[3]:
-                        continue
-                    neighbours.append((x, y, z, w))
-    return neighbours
+def update_neighbours(cubes, active_cubes):
+    for loc, cube in active_cubes:
+        neighbours = calc_neighbours(loc)
+        for neighbour in neighbours:
+            if neighbour not in cubes:
+                cubes[neighbour] = Cube()
+            cube.neighbours.add(cubes[neighbour])
+            cubes[neighbour].neighbours.add(cube)
 
 
-def go(p1=True):
-    cubes = {}
-    z = 0
-    w = 0
-    for row, line in enumerate(open('../inputs/day17.txt')):
-        line = line.strip()
-        for col, char in enumerate(line):
-            if char == '.':
-                continue
-            else:
-                location = (row, col, z) if p1 else (row, col, z, w)
-                if location not in cubes:
-                    cubes[location] = (Cube())
-                cube = cubes[location]
-                cube.status = True
-                neighbours = neighbours_p1((row, col, z)) if p1 else neighbours_p2((row, col, z, w))
-                for neighbour in neighbours:
-                    cubes[neighbour] = Cube() if neighbour not in cubes else cubes[neighbour]
-                    cube.add_neighbour(cubes[neighbour])
-                    cubes[neighbour].add_neighbour(cube)
+def buffer_cubes(cubes):
+    for cube in cubes.values():
+        cube.buffer_update()
 
+
+def commit_cubes(cubes):
+    for cube in cubes.values():
+        cube.commit()
+
+
+def go(dims=3):
+    cubes = dict()
+    for x, line in enumerate([line.strip() for line in open('../inputs/day17.txt')]):
+        for y, char in enumerate(line):
+            if char == '#':
+                loc = tuple([x, y] + [0] * (dims - 2))
+                cubes[loc] = Cube()
+                cubes[loc].active = True
+
+    update_neighbours(cubes, list(cubes.items()))
     for _ in range(6):
-        for cube in cubes.values():
-            cube.buffer_update()
-        for cube in cubes.values():
-            cube.commit()
+        buffer_cubes(cubes)
+        commit_cubes(cubes)
+        update_neighbours(cubes, [i for i in cubes.items() if i[1].active])
 
-        # Update all active cubes with neighbours:
-        active_cubes = [(location, cube) for location, cube in cubes.items() if cube.status]
-        for location, cube in active_cubes:
-            neighbours = neighbours_p1(location) if p1 else neighbours_p2(location)
-            for neighbour in neighbours:
-                cubes[neighbour] = Cube() if neighbour not in cubes else cubes[neighbour]
-                cube.add_neighbour(cubes[neighbour])
-                cubes[neighbour].add_neighbour(cube)
-
-    return sum([1 for cube in cubes.values() if cube.status])
+    return [cube.active for cube in cubes.values()].count(True)
 
 
-print(f"Part 1 Answer: {go(p1=True)}")
-print(f"Part 2 Answer: {go(p1=False)}")
+print(f"Part 1 Answer: {go()}")
+print(f"Part 2 Answer: {go(dims=4)}")
