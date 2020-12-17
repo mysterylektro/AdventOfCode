@@ -1,65 +1,32 @@
+from collections import defaultdict
 import itertools
 
 
-class Cube:
-    def __init__(self):
-        self.active = False
-        self.neighbours = set()
-        self.buffer = False
-
-    def buffer_update(self):
-        count = [cube.active for cube in self.neighbours].count(True)
-        self.buffer = count in [2, 3] if self.active else count == 3
-
-    def commit(self):
-        self.active = self.buffer
-
-
-def calc_neighbours(location):
-    dims = []
-    for dim in range(len(location)):
-        dims.append([location[dim]-1, location[dim], location[dim]+1])
-    neighbours = list(itertools.product(*dims))
-    neighbours.remove(location)
+def calc_neighbours(loc):
+    neighbours = list(itertools.product(*[[loc[dim] - 1, loc[dim], loc[dim] + 1] for dim in range(len(loc))]))
+    neighbours.remove(loc)
     return neighbours
 
 
-def update_neighbours(cubes, active_cubes):
-    for loc, cube in active_cubes:
-        neighbours = calc_neighbours(loc)
+def get_active_cubes(active_cubes):
+    ret_cubes, all_neighbours = set(), defaultdict(int)
+    for active_cube in active_cubes:
+        neighbours = calc_neighbours(active_cube)
+        count = len([c for c in neighbours if c in active_cubes])
+        _ = ret_cubes.add(active_cube) if count in [2, 3] else None
         for neighbour in neighbours:
-            if neighbour not in cubes:
-                cubes[neighbour] = Cube()
-            cube.neighbours.add(cubes[neighbour])
-            cubes[neighbour].neighbours.add(cube)
+            all_neighbours[neighbour] += 1
 
-
-def buffer_cubes(cubes):
-    for cube in cubes.values():
-        cube.buffer_update()
-
-
-def commit_cubes(cubes):
-    for cube in cubes.values():
-        cube.commit()
+    _ = [ret_cubes.add(neighbour) for neighbour, active_count in all_neighbours.items() if active_count == 3]
+    return ret_cubes
 
 
 def go(dims=3):
-    cubes = dict()
-    for x, line in enumerate([line.strip() for line in open('../inputs/day17.txt')]):
-        for y, char in enumerate(line):
-            if char == '#':
-                loc = tuple([x, y] + [0] * (dims - 2))
-                cubes[loc] = Cube()
-                cubes[loc].active = True
-
-    update_neighbours(cubes, list(cubes.items()))
+    active_cubes = set()
+    _ = [active_cubes.add(tuple([x, y] + [0] * (dims - 2))) for x, line in enumerate(open('../inputs/day17.txt')) for y, char in enumerate(line[:-1]) if char == '#']
     for _ in range(6):
-        buffer_cubes(cubes)
-        commit_cubes(cubes)
-        update_neighbours(cubes, [i for i in cubes.items() if i[1].active])
-
-    return [cube.active for cube in cubes.values()].count(True)
+        active_cubes = get_active_cubes(active_cubes)
+    return len(active_cubes)
 
 
 print(f"Part 1 Answer: {go()}")
