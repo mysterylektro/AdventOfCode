@@ -1,25 +1,17 @@
-from collections import defaultdict
 import re
 
-allergen_list = defaultdict(list)
-food_list = set()
-appearances = []
+allergen_list = dict()
+food_set = set()
+food_list = []
 
 for line in [line.strip() for line in open('../inputs/day21.txt')]:
-    tokens = line.split(' (contains ')
-    foods = tokens[0].split()
-    allergens = re.split(r', | |\)', tokens[1])
-    allergens[-1] = allergens[-1][:-1]
-    food_list = food_list.union(set(foods))
-    appearances.extend(foods)
+    ingredients, allergens = line.split(' (contains ')
+    foods = ingredients.split()
+    food_set = set.union(food_set, set(foods))
+    food_list.extend(foods)
+    allergens = re.split(r', | |\)', allergens)[:-1]
     for allergen in allergens:
-        if allergen == '':
-            continue
-        allergen_list[allergen].append(set(foods))
-
-
-for allergen, candidates in allergen_list.items():
-    allergen_list[allergen] = set.intersection(*candidates)
+        allergen_list[allergen] = set.intersection(allergen_list[allergen], set(foods)) if allergen in allergen_list else set(foods)
 
 while sum([len(c) for c in allergen_list.values()]) != len(allergen_list):
     # find sets that contain only a single value, and remove that value from other sets:
@@ -30,13 +22,9 @@ while sum([len(c) for c in allergen_list.values()]) != len(allergen_list):
             if val in candidates and len(candidates) != 1:
                 candidates.remove(val)
 
-allergen_foods = set.union(*allergen_list.values())
-safe_foods = allergen_foods ^ food_list
-count = 0
-for food in safe_foods:
-    count += appearances.count(food)
-
+safe_foods = set.union(*allergen_list.values()) ^ food_set
+count = sum([food_list.count(food) for food in safe_foods])
 print(f'Part 1 Answer: {count}')
 
-allergens = [list(allergen_list[key])[0] for key in sorted(allergen_list)]
-print(f"Part 2 Answer: {','.join(allergens)}")
+allergen_foods = ','.join([list(allergen_list[key])[0] for key in sorted(allergen_list)])
+print(f"Part 2 Answer: {allergen_foods}")
