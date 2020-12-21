@@ -1,7 +1,7 @@
 import random
 import requests
 
-NUMBER_OF_WINNERS = 3
+NUMBER_OF_WINNERS = 4
 YEAR = "2020"
 LEADERBOARD_ID = "935377"
 with open('./aoc_session.txt') as f:
