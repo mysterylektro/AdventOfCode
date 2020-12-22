@@ -5,34 +5,32 @@ def compute_winning_score(winning_deck):
     return sum([(i + 1) * val for i, val in enumerate(reversed(list(winning_deck)))])
 
 
-def combat(deck1, deck2):
-    while len(deck1) != 0 and len(deck2) != 0:
-        card1, card2 = deck1.popleft(), deck2.popleft()
-        if card1 > card2:
-            deck1.extend([card1, card2])
-        else:
-            deck2.extend([card2, card1])
-    return deck1 if len(deck1) > 0 else deck2
-
-
-def recursive_combat(deck1, deck2):
+def combat(decks, recursion=False):
     prev_states = set()
-    while len(deck1) != 0 and len(deck2) != 0:
-        if tuple([tuple(deck1), tuple(deck2)]) in prev_states:
-            return 0, deck1
-        prev_states.add(tuple([tuple(deck1), tuple(deck2)]))
-        card1, card2 = deck1.popleft(), deck2.popleft()
-        winner = recursive_combat(deque(list(deck1)[:card1]), deque(list(deck2)[:card2]))[0] if (len(deck1) >= card1 and len(deck2) >= card2) else (0 if card1 > card2 else 1)
-        if winner == 0:
-            deck1.extend([card1, card2])
+    while all(len(deck) != 0 for deck in decks):
+        if recursion and tuple([tuple(deck) for deck in decks]) in prev_states:
+            return 0, decks[0]
+        prev_states.add(tuple([tuple(deck) for deck in decks]))
+        cards = [deck.popleft() for deck in decks]
+        if recursion:
+            if all([len(deck) >= card for card, deck in zip(cards, decks)]):
+                winner = combat([deque(list(deck)[:card]) for card, deck in zip(cards, decks)], recursion=True)[0]
+            else:
+                winner = cards.index(max(cards))
         else:
-            deck2.extend([card2, card1])
-    return (0, deck1) if len(deck1) > 0 else (1, deck2)
+            winner = cards.index(max(cards))
+        cards.insert(0, cards.pop(winner))
+        decks[winner].extend(cards)
+
+    winner, winning_deck = None, None
+    for i, deck in enumerate(decks):
+        if len(deck) > 0:
+            winner, winning_deck = i, deck
+            break
+    return winner, winning_deck
 
 
 inputs = open('../inputs/day22.txt').read().split('\n\n')
-p1_deck = deque(list(map(int, [card.strip() for card in inputs[0].split('\n')[1:]])))
-p2_deck = deque(list(map(int, [card.strip() for card in inputs[1].split('\n')[1:-1]])))
-
-print(f'Part 1 Answer: {compute_winning_score(combat(p1_deck.copy(), p2_deck.copy()))}')
-print(f'Part 2 Answer: {compute_winning_score(recursive_combat(p1_deck.copy(), p2_deck.copy())[1])}')
+player_decks = [deque(list(map(int, [card.strip() for card in i.split('\n')[1:] if card != '']))) for i in inputs]
+print(f'Part 1 Answer: {compute_winning_score(combat([deck.copy() for deck in player_decks])[1])}')
+print(f'Part 2 Answer: {compute_winning_score(combat([deck.copy() for deck in player_decks], recursion=True)[1])}')
