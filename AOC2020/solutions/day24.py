@@ -17,11 +17,11 @@ for line in open('../inputs/day24.txt'):
         x, y = x + direction[0], y + direction[1]
     tiles[(x, y)] = not tiles[(x, y)]
 
-black_tiles = set([loc for loc, color in tiles.items() if not color])
+black_tiles = set([loc for loc, white in tiles.items() if not white])
 print(len(black_tiles))
 
 for _ in range(100):
-    new_black_tiles = set()
+    no_flips = set()
     white_neighbours = defaultdict(int)
     for loc in black_tiles:
         b_neighbour_count = 0
@@ -32,12 +32,9 @@ for _ in range(100):
             else:
                 white_neighbours[(x, y)] += 1
         if 1 <= b_neighbour_count <= 2:
-            new_black_tiles.add(loc)
+            no_flips.add(loc)
 
-    flips = set([loc for loc, count in white_neighbours.items() if count == 2])
-    black_tiles = set.union(flips, new_black_tiles)
+    white_flips = set([loc for loc, count in white_neighbours.items() if count == 2])
+    black_tiles = set.union(white_flips, no_flips)
 
 print(len(black_tiles))
-
-
-
