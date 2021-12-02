@@ -18,9 +18,13 @@ for i in range(1, 26):
         with open(filename, 'w+') as f:
             f.write('import setup_aoc_session\n')
             f.write('from aocd.models import Puzzle\n')
-            f.write('from aocd import submit\n\n')
+            f.write('from aocd import submit\n')
+            f.write('import timeit\n\n')
             f.write(f'YEAR, DAY = 2021, {i}\n')
-            f.write(f'puzzle = Puzzle(year=YEAR, day=DAY)\n\n# ---------- SOLUTION HERE ---------- #\n\n\n\n'
-                    f'# ----------------------------------- #\n\n')
+            f.write(f'puzzle = Puzzle(year=YEAR, day=DAY)\n\n'
+                    f'start = timeit.default_timer()\n'
+                    f'# ---------- SOLUTION HERE ---------- #\n\n\n\n'
+                    f'# ----------------------------------- #\n'
+                    'print(f"Finished in {timeit.default_timer() - start} seconds")\n\n')
             f.write(f'submit(P1_ANSWER, part="a", year=YEAR, day=DAY)\n')
             f.write(f'# submit(P2_ANSWER, part="b", year=YEAR, day=DAY)\n')
