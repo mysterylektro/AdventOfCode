@@ -11,12 +11,12 @@ start = timeit.default_timer()
 # ---------- SOLUTION HERE ---------- #
 
 data = np.array([[int(i) for i in d] for d in puzzle.input_data.split('\n')])
-gamma_rate = np.array([1 if np.sum(data[:, i]) >= data.shape[0] // 2 else 0 for i in range(data.shape[1])])
+gamma_rate = np.array([1 if np.sum(data[:, i]) >= round(data.shape[0] / 2) else 0 for i in range(data.shape[1])])
 gamma_rate_num = int(''.join(list(map(str, gamma_rate))), 2)
 epsilon_rate_num = int(''.join(list(map(str, np.abs(gamma_rate - 1)))), 2)
 P1_ANSWER = gamma_rate_num * epsilon_rate_num
 
-oxy_rating = co2_rating = data
+oxy_rating = co2_rating = o = data
 for i in range(data.shape[1]):
     if oxy_rating.shape[0] != 1:
         mask = oxy_rating[:, i] == 1
@@ -28,8 +28,6 @@ for i in range(data.shape[1]):
 
 oxy_rate_num = int(''.join(list(map(str, oxy_rating.flatten()))), 2)
 co2_rate_num = int(''.join(list(map(str, co2_rating.flatten()))), 2)
-
-
 P2_ANSWER = oxy_rate_num * co2_rate_num
 
 # ----------------------------------- #
