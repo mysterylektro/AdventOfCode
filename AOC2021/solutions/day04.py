@@ -12,7 +12,7 @@ start = timeit.default_timer()
 
 data = puzzle.input_data.split('\n\n')
 numbers = np.fromiter(map(int, data[0].split(',')), dtype=int)
-boards = np.array([[list(map(int, row.split())) for row in board.split('\n')] for board in data[1:-1]])
+boards = np.array([[list(map(int, row.split())) for row in board.split('\n')] for board in data[1:]])
 winners = np.full_like(boards, fill_value=0, dtype=int)
 
 P1_ANSWER = P2_ANSWER = None
