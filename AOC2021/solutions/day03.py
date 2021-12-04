@@ -16,7 +16,7 @@ gamma_rate_num = int(''.join(list(map(str, gamma_rate))), 2)
 epsilon_rate_num = int(''.join(list(map(str, np.abs(gamma_rate - 1)))), 2)
 P1_ANSWER = gamma_rate_num * epsilon_rate_num
 
-oxy_rating = co2_rating = o = data
+oxy_rating = co2_rating = data
 for i in range(data.shape[1]):
     if oxy_rating.shape[0] != 1:
         mask = oxy_rating[:, i] == 1
