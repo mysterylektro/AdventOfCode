@@ -44,3 +44,11 @@ print(f"Finished in {timeit.default_timer() - start} seconds")
 
 submit(P1_ANSWER, part="a", year=YEAR, day=DAY)
 submit(P2_ANSWER, part="b", year=YEAR, day=DAY)
+
+import seaborn as sns; sns.set()
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(10,10))
+ax = sns.heatmap(p2_count_array, cbar=None, xticklabels=False, yticklabels=False)
+
+plt.savefig("vents.png", bbox_inches='tight', dpi=1000)
