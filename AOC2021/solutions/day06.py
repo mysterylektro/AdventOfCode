@@ -11,8 +11,8 @@ start = timeit.default_timer()
 
 
 def simulate(num_days, offset_list):
-    t = [1] * 300
-    for i in range(300):
+    t = [1] * num_days
+    for i in range(num_days):
         t[i] = t[i - 9] + t[i - 7]
     return sum(t[num_days-i] for i in offset_list)
 

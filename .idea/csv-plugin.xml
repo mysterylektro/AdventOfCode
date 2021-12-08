@@ -10,6 +10,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\AOC2021\solutions\day08.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
       </map>
     </option>
   </component>
